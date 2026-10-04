@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Photo Boards – Whose are they?</title>
+<style>
+:root{--ink:#1d2340;--muted:#5b6485;--pink:#ff4f8b;--orange:#ff9f1c;--teal:#14b8a6;--blue:#3b82f6;--purple:#8b5cf6;--ok:#16a34a;--okbg:#dcfce7;--no:#e11d48;--nobg:#ffe4e9}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;display:flex;flex-direction:column;height:100dvh;color:var(--ink);font:16px/1.45 "Trebuchet MS",system-ui,-apple-system,Segoe UI,sans-serif;background:linear-gradient(135deg,#fff3c4,#ffe0ef 50%,#d9f3ff)}
+header{flex:none;padding:8px 14px;background:linear-gradient(90deg,var(--pink),var(--orange));color:#fff;display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
+header h1{margin:0;font-size:1.3rem;letter-spacing:.06em}
+header p{margin:0;font-size:.85rem;flex:1 1 300px}
+header input{padding:5px 9px;border:0;border-radius:99px;font:inherit;font-size:.85rem;width:120px}
+.split{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px}
+.pane{min-height:0;overflow-y:auto;background:#ffffffcc;border-radius:16px;box-shadow:0 4px 14px #3b2a7a22;padding:0 10px 10px;scroll-behavior:smooth}
+.pane h2{position:sticky;top:0;z-index:2;margin:0 -10px 10px;padding:8px 14px;font-size:1rem;color:#fff;border-radius:16px 16px 0 0}
+#hp{background:var(--blue)} #hb{background:var(--purple)}
+.profile{--c:var(--blue);background:#fff;border:3px solid var(--c);border-radius:14px;margin-bottom:10px;overflow:hidden;transition:.2s}
+.profile h3{margin:0;padding:5px 12px;background:var(--c);color:#fff;font-size:1rem}
+.profile p{margin:0;padding:8px 12px;font-size:.95rem}
+.pick{display:flex;align-items:center;gap:8px;padding:0 12px 10px;justify-content:flex-end}
+.pick label{font-weight:700}
+select{padding:6px 10px;font:inherit;font-weight:700;border-radius:10px;border:2px solid #cfd6f3;background:#fff;color:var(--ink)}
+.profile.ok{border-color:var(--ok);background:var(--okbg)}
+.profile.no{border-color:var(--no);background:var(--nobg)}
+.mark{font-weight:900;font-size:1.2rem;min-width:1.2em}
+.board{display:flex;gap:10px;background:#fff;border:2px solid #e8e3ff;border-radius:14px;padding:10px;margin-bottom:8px}
+.board .l{flex:none;width:34px;height:34px;border-radius:10px;background:var(--c,var(--pink));color:#fff;font-weight:800;display:grid;place-items:center;font-size:1.05rem}
+.board p{margin:0;font-size:.95rem}
+.tag{display:inline-block;margin-top:5px;font-size:.8rem;font-weight:700;color:#fff;background:var(--teal);padding:1px 10px;border-radius:99px;margin-right:4px}
+.bar{flex:none;display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:8px 12px calc(8px + env(safe-area-inset-bottom));background:#fff;box-shadow:0 -3px 12px #3b2a7a22}
+button{font:inherit;font-weight:700;padding:8px 16px;border-radius:99px;border:0;cursor:pointer;background:var(--teal);color:#fff}
+button.sec{background:#eef0ff;color:var(--purple)}
+button:active{transform:scale(.97)}
+#msg{margin-left:auto;font-weight:800;font-size:1.05rem}
+@media (max-width:700px){
+  .split{grid-template-columns:1fr;grid-template-rows:1fr 1fr;gap:6px;padding:6px}
+  header p{display:none} header input{width:44%}
+  .profile p,.board p{font-size:.9rem}
+}
+@media print{.bar{display:none}body{height:auto}.split{display:block}.pane{overflow:visible}}
+</style>
+</head>
+<body>
+<header>
+  <h1>PHOTO BOARDS</h1>
+  <p>Read each profile. Scroll the boards and match each person with the correct board. <b>3 boards are extra!</b></p>
+  <input id="name" placeholder="Name"><input id="cls" placeholder="Class">
+</header>
+<div class="split">
+  <section class="pane" aria-label="Profiles"><h2 id="hp">👤 Profiles – whose are they?</h2><div id="profiles"></div></section>
+  <section class="pane" aria-label="Photo boards"><h2 id="hb">🖼️ Photo boards</h2><div id="boards"></div></section>
+</div>
+<div class="bar">
+  <button id="check">Check answers</button>
+  <button id="show" class="sec">Show answers</button>
+  <button id="reset" class="sec">Reset</button>
+  <span id="msg" aria-live="polite"></span>
+</div>
+<script>
+// ---- EDIT CONTENT HERE ----
+const profiles=[
+ {n:"Tariq",a:"C",t:"I live on a farm in the countryside with my grandparents and my cousins. I love riding our horses after school. I'm also good at fixing things. I want to be an engineer one day."},
+ {n:"Sara",a:"H",t:"I live in a village high in the mountains with my parents and my brother. I go hiking with my dad every weekend, and I'm learning how to climb. I'd like to be a doctor and help people."},
+ {n:"Mia",a:"B",t:"I live in a big city with my mum. I don't have any brothers or sisters. I'm taking ballet lessons at the moment, and I love going to the theatre with my mum. I'd like to dance in a show one day."},
+ {n:"Jun",a:"G",t:"I live in an apartment in a busy city with my parents and my grandmother. I'm crazy about technology, and I'm in the robot club at school. I also play table tennis with my friends at the weekend."},
+ {n:"Emma",a:"F",t:"I live in a quiet town with my parents and my little sister. I read a lot, and I'm writing my own stories at the moment. I put them on a blog. I want to be a journalist."},
+ {n:"Yusuf",a:"D",t:"I live in a small town by the sea with my parents and two brothers. My dad is a fisherman, and I often help him on his boat at weekends. I'm learning to dive, too. I want to study the ocean."}
+];
+const boards={
+ A:"There's a photo of a boy on a skateboard in a park. There's a picture of a family of five outside a new house in the suburbs. There's also a photo of a pet dog.",
+ B:"On this board, there's a photo of a woman and a girl in front of some tall glass buildings. There's also a pair of ballet shoes on a wooden floor, and a poster for a dance show at the city theatre.",
+ C:"On this board, there's a photo of a boy riding a horse across a field. There's a picture of a big family outside a farmhouse, with green hills behind. There's also a photo of some tools and a book called <i>How machines work</i>.",
+ D:"This board has a photo of a boy in a diving mask on a boat. There's a picture of a family next to small houses by a harbour, with fishing boats. There's also a photo of fishing nets and a book called <i>Secrets of the Ocean</i>.",
+ E:"On this board, there's a photo of a band on a stage. There's a picture of a girl with her grandmother in a kitchen, and a pair of headphones. There's also a guitar.",
+ F:"On this board, you can see a pile of books and a notebook. There's a screenshot of a blog page called <i>My Stories</i>. There's also a photo of two sisters with their parents in the garden of a small house.",
+ G:"This board has a photo of a robot made of small blocks. There's a picture of a boy with his parents and grandmother next to a tall apartment building. There's a table tennis bat and ball, and a photo of a school trophy for a coding competition.",
+ H:"There's a photo of a girl with a rucksack on a rocky mountain path. There's also a map and a compass, and a picture of a snowy village with wooden houses. Another photo shows a first-aid box and a stethoscope.",
+ I:"This board has a photo of a boy swimming in a pool, and a photo of a family on a big ship on holiday. There's also a postcard of a sunny beach."
+};
+// ---------------------------
+const $=id=>document.getElementById(id), letters=Object.keys(boards);
+const cols=["#3b82f6","#ff4f8b","#14b8a6","#ff9f1c","#8b5cf6","#ef4444"];
+$("profiles").innerHTML=profiles.map((p,i)=>`<div class="profile" id="p${i}" style="--c:${cols[i]}"><h3>${i+1}&nbsp; ${p.n}</h3><p>${p.t}</p>
+ <div class="pick"><span class="mark" id="m${i}"></span><label>Board: <select data-i="${i}"><option value="">–</option>${letters.map(l=>`<option>${l}</option>`).join("")}</select></label></div></div>`).join("");
+$("boards").innerHTML=letters.map((l,k)=>`<div class="board" style="--c:${["#ff4f8b","#ff9f1c","#14b8a6","#3b82f6","#8b5cf6"][k%5]}"><div class="l">${l}</div><div><p>${boards[l]}</p><div id="t${l}"></div></div></div>`).join("");
+const sels=[...document.querySelectorAll("select")];
+const clear=()=>{profiles.forEach((_,i)=>{$("p"+i).classList.remove("ok","no");$("m"+i).textContent=""});$("msg").textContent=""};
+function tags(){letters.forEach(l=>$("t"+l).innerHTML="");sels.forEach((s,i)=>{if(s.value)$("t"+s.value).innerHTML+=`<span class="tag" style="background:${cols[i]}">${profiles[i].n}</span>`})}
+sels.forEach(s=>s.onchange=()=>{clear();tags()});
+$("check").onclick=()=>{
+  const used=sels.map(s=>s.value).filter(Boolean);
+  if(used.length<profiles.length){$("msg").textContent="Match all 6 people first.";return}
+  if(new Set(used).size<used.length){$("msg").textContent="Each board can be used only once.";return}
+  let score=0;
+  sels.forEach((s,i)=>{const ok=s.value===profiles[i].a;score+=ok;$("p"+i).classList.add(ok?"ok":"no");$("m"+i).textContent=ok?"✓":"✗";$("m"+i).style.color=ok?"var(--ok)":"var(--no)"});
+  $("msg").textContent=`Score: ${score} / ${profiles.length}`+(score===profiles.length?" 🎉":"");
+};
+$("show").onclick=()=>{sels.forEach((s,i)=>s.value=profiles[i].a);tags();$("check").click()};
+$("reset").onclick=()=>{sels.forEach(s=>s.value="");clear();tags()};
+</script>
+</body>
+</html>
